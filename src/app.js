@@ -1,6 +1,7 @@
 import express from 'express';
 import axios from 'axios';
 import connectToDB from './config/dbConnect.js';
+import livro from './models/livro.js';
 
 const conexao = await connectToDB();
 conexao.on('error', console.error.bind(console, 'Erro de conexão:'));
@@ -16,22 +17,13 @@ conexao.once("open", () => {
 const app = express();
 app.use(express.json());
 
-const livros = [
-    { id: 1, titulo: 'O Senhor dos Anéis' },
-    { id: 2, titulo: 'O Hobbit' },
-    { id: 3, titulo: 'Harry Potter e a Pedra Filosofal' },
-]
-
-function buscaLivro(id) {
-    return livros.find(livro => livro.id === Number(id));
-}  
-
 
 app.get('/', (req, res) => {
     res.status(200).send('Curso de Node.js');
 });
 
-app.get('/livros', (req, res) => {
+app.get('/livros', async (req, res) => {
+    const livros = await livro.find({});
     res.status(200).json(livros);
 });
 
