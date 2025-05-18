@@ -1,7 +1,7 @@
 import express from 'express';
 import axios from 'axios';
 import connectToDB from './config/dbConnect.js';
-import livro from './models/livro.js';
+import routes from './routes/index.js';
 
 const conexao = await connectToDB();
 conexao.on('error', console.error.bind(console, 'Erro de conexão:'));
@@ -15,12 +15,8 @@ conexao.once("open", () => {
 });
 
 const app = express();
-app.use(express.json());
+routes(app);
 
-
-app.get('/', (req, res) => {
-    res.status(200).send('Curso de Node.js');
-});
 
 
 app.get('/livros/:id', (req, res) => {

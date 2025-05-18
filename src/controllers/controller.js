@@ -7,7 +7,17 @@ class LivroController {
             const livros = await livro.find({});
             res.status(200).json(livros);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            res.status(500).json({ message: `${error.message} falha na requisição`});
+        }
+    }
+
+        static async listarLivroPorId(req, res) {
+        try {
+            const id = req.params.id;
+            const livroEncontrado = await livro.findById({id});
+            res.status(200).json(livroEncontrado);
+        } catch (error) {
+            res.status(500).json({ message: `${error.message} falha na requisição do livro`});
         }
     }
 
