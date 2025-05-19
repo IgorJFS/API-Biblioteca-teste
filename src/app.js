@@ -18,30 +18,6 @@ const app = express();
 routes(app);
 
 
-
-app.get('/livros/:id', (req, res) => {
-    const livro = buscaLivro(req.params.id);
-    if (!livro) {
-        return res.status(404).json({ message: 'Livro não encontrado' });
-    }
-    res.status(200).json(livro);
-});
-
-// app.post('/livros', (req, res) => {
-//     livros.push(req.body);
-//     res.status(201).send('Livro adicionado com sucesso!');
-// });
-
-app.put('/livros/:id', (req, res) => {
-    const livro = buscaLivro(req.params.id);
-    if (!livro) {
-        return res.status(404).json({ message: 'Livro não encontrado' });
-    }
-    livro.titulo = req.body.titulo;
-    res.status(200).send('Livro atualizado com sucesso!');
-});
-
-
 app.delete('/livros/:id', (req, res) => {
     const livro = buscaLivro(req.params.id);
     if (!livro) {
