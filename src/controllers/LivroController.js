@@ -1,5 +1,5 @@
 import livro from "../models/livro.js";
-import { autor } from "../models/Autor.js";
+import autor from "../models/Autor.js";
 
 class LivroController {
 
@@ -16,6 +16,11 @@ class LivroController {
     try {
       const id = req.params.id;
       const livroEncontrado = await livro.findById(id);
+
+      if (livroEncontrado === null) {
+        return res.status(404).json({ message: "Livro não encontrado" });
+      }
+
       res.status(200).json(livroEncontrado);
     } catch (error) {
       next(error);
@@ -23,12 +28,12 @@ class LivroController {
   };
 
   static cadastrarLivro = async (req, res, next) => {
-    const novoLivro = req.body;
     try {
-      const autorExistente = await autor.findById(novoLivro.autor);
-      const livroCompleto = { ...novoLivro, autor: autorExistente._doc };
-      const livroCriado = await livro.create(livroCompleto);
-      res.status(201).json({ message: "Livro cadastrado com sucesso!", livro: novoLivro });
+      let novoLivro = new livro(req.body);
+
+      const livroResultado = await novoLivro.save();
+
+      res.status(201).send(livroResultado.toJSON());
     } catch (error) {
       next(error);
     }
