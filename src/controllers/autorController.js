@@ -1,4 +1,4 @@
-import autor from "../models/Autor.js";
+import {autor} from "../models/modelVal.js";
 import NotFound from "../erros/NotFound.js";
 
 class AutorController {
@@ -60,13 +60,34 @@ class AutorController {
     try {
       const id = req.params.id;
 
-      const autorResultado = await autor.findById(id);
+      const autorResultado = await autor.findByIdAndDelete(id);
 
       if (autorResultado !== null) {
         res.status(200).json({ message: "Autor excluído com sucesso!" });
       } else {
-        return next(new NotFound("ID do autor não encontrado"));
+        next(new NotFound("ID do autor não encontrado"));
       }
+    } catch (error) {
+      next(error);
+    }
+  };
+  static excluirMultiplosAutores = async (req, res, next) => {
+    try {
+      const { ids } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        throw new ReqErro("É necessário fornecer um array de IDs para exclusão.");
+      }
+
+      const resultado = await autor.deleteMany({ _id: { $in: ids } });
+
+      if (resultado.deletedCount === 0) {
+        throw new NotFound("Nenhum autor foi encontrado para exclusão.");
+      }
+
+      res.status(200).json({
+        message: `Foram excluídos ${resultado.deletedCount} autor(es).`,
+      });
     } catch (error) {
       next(error);
     }

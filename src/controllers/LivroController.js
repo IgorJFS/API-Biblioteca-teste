@@ -1,12 +1,20 @@
-import livro from "../models/livro.js";
-import autor from "../models/Autor.js";
+import {livro, autor} from "../models/modelVal.js";
+import NotFound from "../erros/NotFound.js";
 
 class LivroController {
 
   static listarLivros = async (req, res, next) => {
     try {
-      const livros = await livro.find({});
-      res.status(200).json(livros);
+      let {limite = 5, pagina = 1, campoOrdenacao = "_id", ordem = -1} = req.query;
+      
+      limite = parseInt(limite);
+      pagina = parseInt(pagina);
+      ordem = parseInt(ordem);
+      
+      if (limite > 0 && pagina > 0) {
+        const livros = await livro.find({}).sort({[campoOrdenacao]: ordem}).skip((pagina - 1) * limite).limit(limite);
+        res.status(200).json(livros);
+      }
     } catch (error) {
       next(error);
     };
@@ -60,15 +68,54 @@ class LivroController {
     }
   };
 
-  static listarLivrosPorEditora = async (req, res, next) => {
-    const editora = req.query.editora;
+  static excluirMultiplosLivros = async (req, res, next) => {
     try {
-      const livrosPorEditora = await livro.find({ editora: editora });
-      res.status(200).json(livrosPorEditora);
+      const { ids } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        throw new ReqErro("É necessário fornecer um array de IDs para exclusão.");
+      }
+
+      const resultado = await livro.deleteMany({ _id: { $in: ids } });
+
+      if (resultado.deletedCount === 0) {
+        throw new NotFound("Nenhum autor foi encontrado para exclusão.");
+      }
+
+      res.status(200).json({
+        message: `Foram excluídos ${resultado.deletedCount} autor(es).`,
+      });
     } catch (error) {
       next(error);
     }
   };
+
+  static listarLivrosPorFiltro = async (req, res, next) => {
+    try {
+      const busca = await processaBuscar(req.query);
+
+      const livrosResultado = await livro.find({...busca});
+      res.status(200).json(livrosResultado);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+async function processaBuscar(parametros) {
+  const {editora, titulo, minPaginas, maxPaginas, nomeAutor} = parametros;
+
+  const busca = {};
+
+  if (editora) busca.editora = editora;
+  if (titulo) busca.titulo = {$regex: titulo, $options: "i"};
+
+  if (minPaginas || maxPaginas) busca.paginas = {};
+
+  if (minPaginas) busca.paginas.$gte = minPaginas;
+  if (maxPaginas) busca.paginas.$lte = maxPaginas;
+
+  return busca;
 }
 
 export default LivroController;

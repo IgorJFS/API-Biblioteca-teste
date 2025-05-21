@@ -8,5 +8,7 @@ routes.get("/autores/:id", AutorController.listarAutorPorId);
 routes.post("/autores", AutorController.cadastrarAutor);
 routes.put("/autores/:id", AutorController.atualizarAutor);
 routes.delete("/autores/:id", AutorController.excluirAutor);
+routes.delete("/autores", AutorController.excluirMultiplosAutores);
+
 
 export default routes;
