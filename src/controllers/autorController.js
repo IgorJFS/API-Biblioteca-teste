@@ -48,7 +48,7 @@ class AutorController {
       if (autorResultado !== null) {
         res.status(200).send({message: "Autor atualizado com sucesso"});
       } else {
-        next(new NaoEncontrado("Id do Autor não localizado."));
+        next(new NotFound("Id do Autor não localizado."));
       }
 
     } catch (erro) {

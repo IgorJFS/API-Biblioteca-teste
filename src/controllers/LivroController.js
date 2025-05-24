@@ -23,7 +23,7 @@ class LivroController {
   static listarLivroPorId = async (req, res, next) => {
     try {
       const id = req.params.id;
-      const livroEncontrado = await livro.findById(id);
+      const livroEncontrado = await livro.findById(id); //pode trocar por await livro.findById(req.params.id)
 
       if (livroEncontrado === null) {
         return res.status(404).json({ message: "Livro não encontrado" });
